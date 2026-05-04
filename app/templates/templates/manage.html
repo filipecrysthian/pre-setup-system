@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}Template - {{ model.name }}{% endblock %}
+{% block page_title %}Template: {{ model.name }}{% endblock %}
+
+{% block page_actions %}
+<button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addItemModal">
+    <i class="bi bi-plus-circle me-1"></i>Adicionar Item
+</button>
+<a href="{{ url_for('templates_setup.index') }}" class="btn btn-secondary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i>Voltar
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="card card-custom">
+    <div class="card-header card-header-custom">
+        <h5 class="mb-0">
+            <i class="bi bi-clipboard-data me-2"></i>Itens do Template
+            <span class="badge bg-secondary ms-2">{{ template_items | length }} itens</span>
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        {% if template_items %}
+        <div class="table-responsive">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th>Grupo/Área</th>
+                        <th>Item</th>
+                        <th>Código</th>
+                        <th>Categoria</th>
+                        <th>Qtd</th>
+                        <th>Observação</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ti in template_items %}
+                    <tr>
+                        <td><span class="badge bg-group-{{ ti.group_area | lower | replace('é', 'e') | replace(' ', '') }}">{{ ti.group_area }}</span></td>
+                        <td class="fw-semibold">{{ ti.item.name }}</td>
+                        <td><code>{{ ti.item.internal_code or '-' }}</code></td>
+                        <td><span class="badge bg-outline-category">{{ ti.item.category }}</span></td>
+                        <td class="text-center">{{ ti.quantity }}</td>
+                        <td class="text-muted small">{{ ti.observation or '-' }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ ti.id }}" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <form method="POST" action="{{ url_for('templates_setup.remove_item', template_item_id=ti.id) }}" class="d-inline"
+                                  onsubmit="return confirm('Remover este item do template?')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Remover">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
+                    <!-- Edit Modal -->
+                    <div class="modal fade" id="editModal{{ ti.id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form method="POST" action="{{ url_for('templates_setup.edit_item', template_item_id=ti.id) }}">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Editar Item do Template</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="text-muted">Item: <strong>{{ ti.item.name }}</strong></p>
+                                        <div class="mb-3">
+                                            <label class="form-label">Grupo/Área</label>
+                                            <select class="form-select" name="group_area" required>
+                                                {% for ga in group_areas %}
+                                                <option value="{{ ga }}" {% if ti.group_area == ga %}selected{% endif %}>{{ ga }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Quantidade</label>
+                                            <input type="number" class="form-control" name="quantity" value="{{ ti.quantity }}" min="1" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Observação</label>
+                                            <textarea class="form-control" name="observation" rows="2">{{ ti.observation or '' }}</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                        <button type="submit" class="btn btn-primary">Salvar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-clipboard-x display-4 text-muted"></i>
+            <p class="text-muted mt-3">Template vazio. Adicione itens a este template.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Add Item Modal -->
+<div class="modal fade" id="addItemModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('templates_setup.add_item', model_id=model.id) }}">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Adicionar Item ao Template</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Grupo/Área</label>
+                        <select class="form-select" name="group_area" required>
+                            <option value="">Selecione...</option>
+                            {% for ga in group_areas %}
+                            <option value="{{ ga }}">{{ ga }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Item</label>
+                        <select class="form-select" name="item_id" required>
+                            <option value="">Selecione...</option>
+                            {% for item in available_items %}
+                            <option value="{{ item.id }}">[{{ item.category }}] {{ item.name }} {% if item.internal_code %}({{ item.internal_code }}){% endif %}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Quantidade</label>
+                        <input type="number" class="form-control" name="quantity" value="1" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Observação</label>
+                        <textarea class="form-control" name="observation" rows="2" placeholder="Observação opcional..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check me-1"></i>Adicionar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

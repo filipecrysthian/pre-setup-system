@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Pré Setup - {{ model.name }}{% endblock %}
+{% block page_title %}Pré Setup: {{ model.name }}{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('setup_requests.generate_select') }}" class="btn btn-secondary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i>Voltar
+</a>
+{% endblock %}
+
+{% block content %}
+<form method="POST" action="{{ url_for('setup_requests.generate_submit', model_id=model.id) }}" id="setupForm">
+    <div class="card card-custom mb-4">
+        <div class="card-header card-header-custom">
+            <h5 class="mb-0">
+                <i class="bi bi-clipboard-check me-2"></i>Preencher Status dos Itens
+                <span class="badge bg-secondary ms-2">{{ template_items | length }} itens</span>
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th>Grupo</th>
+                            <th>Item</th>
+                            <th>Código</th>
+                            <th>Qtd</th>
+                            <th>Status</th>
+                            <th>Observação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ti in template_items %}
+                        <tr class="setup-item-row" data-item-id="{{ ti.id }}">
+                            <td><span class="badge bg-group-{{ ti.group_area | lower | replace('é', 'e') | replace(' ', '') }}">{{ ti.group_area }}</span></td>
+                            <td class="fw-semibold">{{ ti.item.name }}</td>
+                            <td><code>{{ ti.item.internal_code or '-' }}</code></td>
+                            <td class="text-center">{{ ti.quantity }}</td>
+                            <td>
+                                <select class="form-select form-select-sm status-select" name="status_{{ ti.id }}" required
+                                        onchange="handleStatusChange(this, {{ ti.id }})">
+                                    <option value="">Selecione...</option>
+                                    <option value="OK">OK</option>
+                                    <option value="PENDENTE">PENDENTE</option>
+                                    <option value="N/A">N/A</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control form-control-sm" name="observation_{{ ti.id }}"
+                                       id="obs_{{ ti.id }}" placeholder="Observação..."
+                                       {% if ti.observation %}value="{{ ti.observation }}"{% endif %}>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="setup-progress">
+            <span class="text-muted" id="progressText">0 / {{ template_items | length }} itens preenchidos</span>
+            <div class="progress mt-1" style="width: 200px; height: 6px;">
+                <div class="progress-bar bg-primary" id="progressBar" style="width: 0%"></div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" id="generateBtn">
+            <i class="bi bi-file-earmark-pdf me-2"></i>Gerar Pré Setup e PDF
+        </button>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const totalItems = {{ template_items | length }};
+
+    function handleStatusChange(select, itemId) {
+        const obsInput = document.getElementById('obs_' + itemId);
+        const row = select.closest('tr');
+
+        // Visual feedback por status
+        row.classList.remove('status-ok', 'status-pending', 'status-na');
+        if (select.value === 'OK') {
+            row.classList.add('status-ok');
+            obsInput.required = false;
+            obsInput.placeholder = 'Observação (opcional)';
+        } else if (select.value === 'PENDENTE') {
+            row.classList.add('status-pending');
+            obsInput.required = true;
+            obsInput.placeholder = 'Observação obrigatória para PENDENTE';
+            obsInput.focus();
+        } else if (select.value === 'N/A') {
+            row.classList.add('status-na');
+            obsInput.required = false;
+            obsInput.placeholder = 'Observação (opcional)';
+        }
+
+        updateProgress();
+    }
+
+    function updateProgress() {
+        const selects = document.querySelectorAll('.status-select');
+        let filled = 0;
+        selects.forEach(s => { if (s.value) filled++; });
+
+        const pct = Math.round((filled / totalItems) * 100);
+        document.getElementById('progressBar').style.width = pct + '%';
+        document.getElementById('progressText').textContent = filled + ' / ' + totalItems + ' itens preenchidos';
+
+        const btn = document.getElementById('generateBtn');
+        btn.disabled = filled < totalItems;
+    }
+
+    // Validação antes do submit
+    document.getElementById('setupForm').addEventListener('submit', function(e) {
+        const pendingSelects = document.querySelectorAll('.status-select');
+        for (const sel of pendingSelects) {
+            if (sel.value === 'PENDENTE') {
+                const itemId = sel.name.replace('status_', '');
+                const obs = document.getElementById('obs_' + itemId);
+                if (!obs.value.trim()) {
+                    e.preventDefault();
+                    obs.focus();
+                    alert('Itens com status PENDENTE requerem uma observação.');
+                    return false;
+                }
+            }
+        }
+    });
+
+    // Init
+    updateProgress();
+</script>
+{% endblock %}

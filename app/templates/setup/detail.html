@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Detalhe - Pré Setup #{{ setup.id }}{% endblock %}
+{% block page_title %}Detalhe: Pré Setup #{{ setup.id }}{% endblock %}
+
+{% block page_actions %}
+{% if setup.pdf_filename %}
+<a href="{{ url_for('setup_requests.download_pdf', setup_id=setup.id) }}" class="btn btn-success btn-sm">
+    <i class="bi bi-download me-1"></i>Baixar PDF
+</a>
+{% endif %}
+{% if not setup.email_sent %}
+<form method="POST" action="{{ url_for('setup_requests.send_email', setup_id=setup.id) }}" class="d-inline">
+    <button type="submit" class="btn btn-info btn-sm" onclick="return confirm('Enviar PDF por email?')">
+        <i class="bi bi-envelope me-1"></i>Enviar Email
+    </button>
+</form>
+{% endif %}
+<a href="{{ url_for('setup_requests.history') }}" class="btn btn-secondary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i>Voltar
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Info Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="info-card">
+            <span class="info-label">Modelo</span>
+            <span class="info-value">{{ setup.product_model.name }}</span>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="info-card">
+            <span class="info-label">Responsável</span>
+            <span class="info-value">{{ setup.user.name }}</span>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="info-card">
+            <span class="info-label">Data/Hora</span>
+            <span class="info-value">{{ setup.generated_at.strftime('%d/%m/%Y %H:%M') }}</span>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="info-card">
+            <span class="info-label">Status Geral</span>
+            <span class="info-value">
+                {% if setup.overall_status == 'CONCLUÍDO' %}
+                    <span class="badge bg-success">Concluído</span>
+                {% else %}
+                    <span class="badge bg-warning text-dark">Com Pendência</span>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- Email Status -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="info-card">
+            <span class="info-label">Email Enviado</span>
+            <span class="info-value">
+                {% if setup.email_sent %}
+                    <span class="badge bg-info"><i class="bi bi-check me-1"></i>Sim</span>
+                    {% if setup.email_sent_at %}
+                    <small class="text-muted ms-2">{{ setup.email_sent_at.strftime('%d/%m/%Y %H:%M') }}</small>
+                    {% endif %}
+                {% else %}
+                    <span class="badge bg-secondary">Não enviado</span>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="info-card">
+            <span class="info-label">PDF</span>
+            <span class="info-value">
+                {% if setup.pdf_filename %}
+                    <span class="badge bg-success"><i class="bi bi-file-earmark-pdf me-1"></i>Disponível</span>
+                {% else %}
+                    <span class="badge bg-secondary">Não gerado</span>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- Items Table -->
+<div class="card card-custom mb-4">
+    <div class="card-header card-header-custom">
+        <h5 class="mb-0"><i class="bi bi-list-check me-2"></i>Itens Preenchidos</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th>Grupo</th>
+                        <th>Item</th>
+                        <th>Código</th>
+                        <th>Qtd</th>
+                        <th>Status</th>
+                        <th>Observação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for si in setup_items %}
+                    <tr class="{% if si.status == 'OK' %}status-ok{% elif si.status == 'PENDENTE' %}status-pending{% else %}status-na{% endif %}">
+                        <td><span class="badge bg-group-{{ si.group_area | lower | replace('é', 'e') | replace(' ', '') }}">{{ si.group_area }}</span></td>
+                        <td class="fw-semibold">{{ si.item.name }}</td>
+                        <td><code>{{ si.item.internal_code or '-' }}</code></td>
+                        <td class="text-center">{{ si.quantity }}</td>
+                        <td>
+                            {% if si.status == 'OK' %}
+                                <span class="badge bg-success">OK</span>
+                            {% elif si.status == 'PENDENTE' %}
+                                <span class="badge bg-warning text-dark">PENDENTE</span>
+                            {% else %}
+                                <span class="badge bg-secondary">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted small">{{ si.observation or '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Summary -->
+<div class="row g-3">
+    <div class="col-md-3">
+        <div class="summary-card summary-total">
+            <span class="summary-number">{{ total_items }}</span>
+            <span class="summary-label">Total de Itens</span>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="summary-card summary-ok">
+            <span class="summary-number">{{ total_ok }}</span>
+            <span class="summary-label">OK</span>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="summary-card summary-pending">
+            <span class="summary-number">{{ total_pending }}</span>
+            <span class="summary-label">Pendente</span>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="summary-card summary-na">
+            <span class="summary-number">{{ total_na }}</span>
+            <span class="summary-label">N/A</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}Itens{% endblock %}
+{% block page_title %}Itens e Materiais{% endblock %}
+
+{% block page_actions %}
+<button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createModal">
+    <i class="bi bi-plus-circle me-1"></i>Novo Item
+</button>
+{% endblock %}
+
+{% block content %}
+<div class="card card-custom">
+    <div class="card-body p-0">
+        {% if items %}
+        <div class="table-responsive">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Código</th>
+                        <th>Categoria</th>
+                        <th>Descrição</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td><span class="badge bg-secondary">#{{ item.id }}</span></td>
+                        <td class="fw-semibold">{{ item.name }}</td>
+                        <td><code>{{ item.internal_code or '-' }}</code></td>
+                        <td><span class="badge bg-outline-category">{{ item.category }}</span></td>
+                        <td class="text-muted small">{{ item.description or '-' }}</td>
+                        <td>
+                            {% if item.is_active %}
+                                <span class="badge bg-success">Ativo</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inativo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ item.id }}" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <form method="POST" action="{{ url_for('items.toggle_status', item_id=item.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-{{ 'danger' if item.is_active else 'success' }}" title="{{ 'Desativar' if item.is_active else 'Ativar' }}">
+                                    <i class="bi bi-{{ 'x-circle' if item.is_active else 'check-circle' }}"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
+                    <!-- Edit Modal -->
+                    <div class="modal fade" id="editModal{{ item.id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form method="POST" action="{{ url_for('items.edit', item_id=item.id) }}">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Editar Item</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">Nome</label>
+                                            <input type="text" class="form-control" name="name" value="{{ item.name }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Código Interno</label>
+                                            <input type="text" class="form-control" name="internal_code" value="{{ item.internal_code or '' }}">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Categoria</label>
+                                            <select class="form-select" name="category" required>
+                                                {% for cat in categories %}
+                                                <option value="{{ cat }}" {% if item.category == cat %}selected{% endif %}>{{ cat }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Descrição</label>
+                                            <textarea class="form-control" name="description" rows="2">{{ item.description or '' }}</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                        <button type="submit" class="btn btn-primary">Salvar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-box-seam display-4 text-muted"></i>
+            <p class="text-muted mt-3">Nenhum item cadastrado.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Create Modal -->
+<div class="modal fade" id="createModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('items.create') }}">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Novo Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nome</label>
+                        <input type="text" class="form-control" name="name" placeholder="Ex: Cabo USB Type-C" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Código Interno</label>
+                        <input type="text" class="form-control" name="internal_code" placeholder="Ex: CB-001">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Categoria</label>
+                        <select class="form-select" name="category" required>
+                            <option value="">Selecione...</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat }}">{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descrição / Observação</label>
+                        <textarea class="form-control" name="description" rows="2" placeholder="Descrição opcional do item..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check me-1"></i>Criar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

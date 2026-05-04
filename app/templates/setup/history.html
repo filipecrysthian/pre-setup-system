@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Histórico{% endblock %}
+{% block page_title %}Histórico de Pré Setups{% endblock %}
+
+{% block content %}
+<div class="card card-custom">
+    <div class="card-body p-0">
+        {% if setups %}
+        <div class="table-responsive">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Modelo</th>
+                        <th>Responsável</th>
+                        <th>Data/Hora</th>
+                        <th>Status Geral</th>
+                        <th>Email Enviado</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for setup in setups %}
+                    <tr>
+                        <td><span class="badge bg-secondary">#{{ setup.id }}</span></td>
+                        <td class="fw-semibold">{{ setup.product_model.name }}</td>
+                        <td>{{ setup.user.name }}</td>
+                        <td>{{ setup.generated_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>
+                            {% if setup.overall_status == 'CONCLUÍDO' %}
+                                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Concluído</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle me-1"></i>Com Pendência</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if setup.email_sent %}
+                                <span class="badge bg-info"><i class="bi bi-check me-1"></i>Sim</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Não</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('setup_requests.detail', setup_id=setup.id) }}" class="btn btn-sm btn-outline-primary" title="Ver detalhes">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            {% if setup.pdf_filename %}
+                            <a href="{{ url_for('setup_requests.download_pdf', setup_id=setup.id) }}" class="btn btn-sm btn-outline-success" title="Baixar PDF">
+                                <i class="bi bi-download"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-clock-history display-4 text-muted"></i>
+            <p class="text-muted mt-3">Nenhum pré setup gerado ainda.</p>
+            <a href="{{ url_for('setup_requests.generate_select') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Gerar Primeiro Pré Setup
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

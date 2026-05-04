@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Metric Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="metric-card metric-card-primary">
+            <div class="metric-icon">
+                <i class="bi bi-file-earmark-check"></i>
+            </div>
+            <div class="metric-info">
+                <span class="metric-value">{{ total_setups }}</span>
+                <span class="metric-label">Pré Setups Gerados</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="metric-card metric-card-success">
+            <div class="metric-icon">
+                <i class="bi bi-cpu"></i>
+            </div>
+            <div class="metric-info">
+                <span class="metric-value">{{ total_models }}</span>
+                <span class="metric-label">Modelos Ativos</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="metric-card metric-card-info">
+            <div class="metric-icon">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <div class="metric-info">
+                <span class="metric-value">{{ total_items }}</span>
+                <span class="metric-label">Itens Cadastrados</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="metric-card metric-card-warning">
+            <div class="metric-icon">
+                <i class="bi bi-lightning-charge"></i>
+            </div>
+            <div class="metric-info">
+                <span class="metric-value">
+                    {% set pending = recent_setups | selectattr('overall_status', 'equalto', 'COM PENDÊNCIA') | list | length %}
+                    {{ pending }}
+                </span>
+                <span class="metric-label">Com Pendência</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Setups -->
+<div class="card card-custom">
+    <div class="card-header card-header-custom">
+        <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Últimos Pré Setups Gerados</h5>
+    </div>
+    <div class="card-body p-0">
+        {% if recent_setups %}
+        <div class="table-responsive">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Modelo</th>
+                        <th>Responsável</th>
+                        <th>Data/Hora</th>
+                        <th>Status</th>
+                        <th>Email</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for setup in recent_setups %}
+                    <tr>
+                        <td><span class="badge bg-secondary">#{{ setup.id }}</span></td>
+                        <td>{{ setup.product_model.name }}</td>
+                        <td>{{ setup.user.name }}</td>
+                        <td>{{ setup.generated_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>
+                            {% if setup.overall_status == 'CONCLUÍDO' %}
+                                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Concluído</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle me-1"></i>Com Pendência</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if setup.email_sent %}
+                                <span class="badge bg-info"><i class="bi bi-check me-1"></i>Sim</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Não</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('setup_requests.detail', setup_id=setup.id) }}" class="btn btn-sm btn-outline-primary" title="Ver detalhes">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            {% if setup.pdf_filename %}
+                            <a href="{{ url_for('setup_requests.download_pdf', setup_id=setup.id) }}" class="btn btn-sm btn-outline-success" title="Baixar PDF">
+                                <i class="bi bi-download"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-inbox display-4 text-muted"></i>
+            <p class="text-muted mt-3">Nenhum pré setup gerado ainda.</p>
+            <a href="{{ url_for('setup_requests.generate_select') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Gerar Primeiro Pré Setup
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Configurações de Email{% endblock %}
+{% block page_title %}Configurações de Email{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-xl-8">
+        <div class="card card-custom">
+            <div class="card-header card-header-custom">
+                <h5 class="mb-0"><i class="bi bi-envelope-at me-2"></i>Configuração SMTP</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('email_config.save') }}">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label">Host SMTP</label>
+                            <input type="text" class="form-control" name="smtp_host" value="{{ config.smtp_host if config else 'smtp.gmail.com' }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Porta</label>
+                            <input type="number" class="form-control" name="smtp_port" value="{{ config.smtp_port if config else 587 }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Usuário SMTP</label>
+                            <input type="text" class="form-control" name="username" value="{{ config.username if config else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Senha SMTP</label>
+                            <input type="password" class="form-control" name="password" placeholder="{% if config and config.password %}••••••••{% endif %}">
+                            {% if config and config.password %}
+                            <small class="text-muted">Deixe em branco para manter a atual</small>
+                            {% endif %}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Email Remetente</label>
+                            <input type="email" class="form-control" name="sender_email" value="{{ config.sender_email if config else '' }}">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Destinatários</label>
+                            <textarea class="form-control" name="recipients" rows="3" placeholder="email1@empresa.com; email2@empresa.com">{{ config.recipients if config else '' }}</textarea>
+                            <small class="text-muted">Separe os emails com ponto e vírgula ( ; )</small>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle me-1"></i>Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
