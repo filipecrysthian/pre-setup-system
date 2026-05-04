@@ -82,6 +82,7 @@ class Item(db.Model):
     category = db.Column(db.String(50), nullable=False, default='GERAL')
     description = db.Column(db.Text, nullable=True)
     image_filename = db.Column(db.String(300), nullable=True)
+    quantity = db.Column(db.Integer, nullable=False, default=1)
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 

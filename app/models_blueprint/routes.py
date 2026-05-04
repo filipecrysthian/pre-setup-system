@@ -138,7 +138,8 @@ def create_material(model_id):
         description=description,
         product_model_id=model_id,
         category='GERAL',
-        image_filename=image_filename
+        image_filename=image_filename,
+        quantity=int(request.form.get('quantity', 1))
     )
     db.session.add(material)
     db.session.commit()
@@ -176,6 +177,7 @@ def edit_material(model_id, item_id):
 
     material.name = name
     material.description = description
+    material.quantity = int(request.form.get('quantity', 1))
     db.session.commit()
 
     flash(f'Material "{name}" atualizado!', 'success')
