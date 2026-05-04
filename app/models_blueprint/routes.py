@@ -2,10 +2,13 @@
 Blueprint de Modelos de Produto.
 CRUD completo para cadastro de modelos (Notebook, Desktop, Tiny).
 """
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+import os
+from datetime import datetime
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
 from flask_login import login_required
+from werkzeug.utils import secure_filename
 from app.extensions import db
-from app.models import ProductModel
+from app.models import ProductModel, Item
 
 models_bp = Blueprint('models_blueprint', __name__, url_prefix='/models')
 
@@ -96,3 +99,105 @@ def toggle_status(model_id):
     status_text = 'ativado' if model.is_active else 'desativado'
     flash(f'Modelo "{model.name}" {status_text} com sucesso!', 'success')
     return redirect(url_for('models_blueprint.index'))
+
+
+# --- Materiais por Modelo ---
+
+@models_bp.route('/<int:model_id>/materials')
+@login_required
+def materials(model_id):
+    """Lista todos os materiais vinculados a um modelo específico."""
+    model = ProductModel.query.get_or_404(model_id)
+    materials = Item.query.filter_by(product_model_id=model_id).order_by(Item.name).all()
+    return render_template('models/materials.html', model=model, materials=materials)
+
+
+@models_bp.route('/<int:model_id>/materials/create', methods=['POST'])
+@login_required
+def create_material(model_id):
+    """Cadastra um novo material para o modelo."""
+    model = ProductModel.query.get_or_404(model_id)
+    name = request.form.get('name', '').strip()
+    description = request.form.get('description', '').strip() or None
+    
+    if not name:
+        flash('O nome do material é obrigatório.', 'danger')
+        return redirect(url_for('models_blueprint.materials', model_id=model_id))
+
+    # Processar Upload de Foto
+    image_filename = None
+    if 'photo' in request.files:
+        file = request.files['photo']
+        if file and file.filename:
+            filename = secure_filename(f"{model_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{file.filename}")
+            file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+            image_filename = filename
+
+    material = Item(
+        name=name,
+        description=description,
+        product_model_id=model_id,
+        category='GERAL',
+        image_filename=image_filename
+    )
+    db.session.add(material)
+    db.session.commit()
+
+    flash(f'Material "{name}" adicionado ao modelo {model.name}!', 'success')
+    return redirect(url_for('models_blueprint.materials', model_id=model_id))
+
+
+@models_bp.route('/<int:model_id>/materials/edit/<int:item_id>', methods=['POST'])
+@login_required
+def edit_material(model_id, item_id):
+    """Edita um material de um modelo."""
+    material = Item.query.get_or_404(item_id)
+    name = request.form.get('name', '').strip()
+    description = request.form.get('description', '').strip() or None
+
+    if not name:
+        flash('O nome do material é obrigatório.', 'danger')
+        return redirect(url_for('models_blueprint.materials', model_id=model_id))
+
+    # Processar nova foto se enviada
+    if 'photo' in request.files:
+        file = request.files['photo']
+        if file and file.filename:
+            # Remover antiga se existir
+            if material.image_filename:
+                old_path = os.path.join(current_app.config['UPLOAD_FOLDER'], material.image_filename)
+                if os.path.exists(old_path):
+                    try: os.remove(old_path)
+                    except: pass
+            
+            filename = secure_filename(f"{model_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{file.filename}")
+            file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+            material.image_filename = filename
+
+    material.name = name
+    material.description = description
+    db.session.commit()
+
+    flash(f'Material "{name}" atualizado!', 'success')
+    return redirect(url_for('models_blueprint.materials', model_id=model_id))
+
+
+@models_bp.route('/<int:model_id>/materials/delete/<int:item_id>', methods=['POST'])
+@login_required
+def delete_material(model_id, item_id):
+    """Exclui um material de um modelo."""
+    material = Item.query.get_or_404(item_id)
+    name = material.name
+    
+    # Remover arquivo de imagem se existir
+    if material.image_filename:
+        file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], material.image_filename)
+        if os.path.exists(file_path):
+            try: os.remove(file_path)
+            except: pass
+
+    db.session.delete(material)
+    db.session.commit()
+
+    flash(f'Material "{name}" excluído com sucesso!', 'success')
+    return redirect(url_for('models_blueprint.materials', model_id=model_id))

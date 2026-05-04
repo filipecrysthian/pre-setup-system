@@ -18,6 +18,10 @@ class Config:
     # Diretório para PDFs gerados
     GENERATED_PDFS_DIR = os.path.join(basedir, 'generated_pdfs')
     
+    # Diretório para uploads de imagens
+    UPLOAD_FOLDER = os.path.join(basedir, 'app', 'static', 'uploads')
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB limit
+    
     # Configurações padrão de email (podem ser sobrescritas pelo banco)
     MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
     MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))

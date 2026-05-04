@@ -48,6 +48,10 @@
                         <td><span class="badge bg-secondary">{{ model.template_items.count() }} itens</span></td>
                         <td>{{ model.created_at.strftime('%d/%m/%Y') }}</td>
                         <td>
+                            <a href="{{ url_for('models_blueprint.materials', model_id=model.id) }}" 
+                               class="btn btn-sm btn-outline-info" title="Materiais" target="_blank">
+                                <i class="bi bi-box-seam"></i>
+                            </a>
                             <button class="btn btn-sm btn-outline-primary" title="Editar"
                                     data-bs-toggle="modal" data-bs-target="#editModal{{ model.id }}">
                                 <i class="bi bi-pencil"></i>
@@ -59,38 +63,6 @@
                             </form>
                         </td>
                     </tr>
-
-                    <!-- Edit Modal -->
-                    <div class="modal fade" id="editModal{{ model.id }}" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <form method="POST" action="{{ url_for('models_blueprint.edit', model_id=model.id) }}">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Editar Modelo</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="mb-3">
-                                            <label class="form-label">Nome do Modelo</label>
-                                            <input type="text" class="form-control" name="name" value="{{ model.name }}" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Tipo do Produto</label>
-                                            <select class="form-select" name="product_type" required>
-                                                {% for pt in product_types %}
-                                                <option value="{{ pt }}" {% if model.product_type == pt %}selected{% endif %}>{{ pt }}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                        <button type="submit" class="btn btn-primary">Salvar</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
                     {% endfor %}
                 </tbody>
             </table>
@@ -103,6 +75,40 @@
         {% endif %}
     </div>
 </div>
+
+<!-- Edit Modals -->
+{% for model in models %}
+<div class="modal fade" id="editModal{{ model.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('models_blueprint.edit', model_id=model.id) }}">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Editar Modelo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nome do Modelo</label>
+                        <input type="text" class="form-control" name="name" value="{{ model.name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tipo do Produto</label>
+                        <select class="form-select" name="product_type" required>
+                            {% for pt in product_types %}
+                            <option value="{{ pt }}" {% if model.product_type == pt %}selected{% endif %}>{{ pt }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
 
 <!-- Create Modal -->
 <div class="modal fade" id="createModal" tabindex="-1">

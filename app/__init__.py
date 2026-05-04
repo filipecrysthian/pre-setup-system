@@ -16,6 +16,7 @@ def create_app(config_class=Config):
 
     # Garantir que diretórios necessários existam
     os.makedirs(app.config['GENERATED_PDFS_DIR'], exist_ok=True)
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     os.makedirs(os.path.join(app.instance_path), exist_ok=True)
 
     # Inicializar extensões

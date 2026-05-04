@@ -62,6 +62,8 @@ class ProductModel(db.Model):
     # Relacionamentos
     template_items = db.relationship('TemplateItem', backref='product_model', lazy='dynamic',
                                      cascade='all, delete-orphan')
+    items = db.relationship('Item', backref='product_model', lazy='dynamic',
+                            cascade='all, delete-orphan')
     setups = db.relationship('PreSetup', backref='product_model', lazy='dynamic')
 
     def __repr__(self):
@@ -74,10 +76,12 @@ class Item(db.Model):
     __tablename__ = 'items'
 
     id = db.Column(db.Integer, primary_key=True)
+    product_model_id = db.Column(db.Integer, db.ForeignKey('product_models.id'), nullable=True) # Temporarily nullable for migration
     name = db.Column(db.String(200), nullable=False)
-    internal_code = db.Column(db.String(50), unique=True, nullable=True)
-    category = db.Column(db.String(50), nullable=False)  # CABO, PCI, PERIFÉRICO, etc.
+    internal_code = db.Column(db.String(50), unique=False, nullable=True) # Removing unique constraint for simplicity
+    category = db.Column(db.String(50), nullable=False, default='GERAL')
     description = db.Column(db.Text, nullable=True)
+    image_filename = db.Column(db.String(300), nullable=True)
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 

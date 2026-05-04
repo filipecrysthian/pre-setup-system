@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}Materiais - {{ model.name }}{% endblock %}
+{% block page_title %}Materiais: {{ model.name }}{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('models_blueprint.index') }}" class="btn btn-outline-secondary btn-sm me-2">
+    <i class="bi bi-arrow-left me-1"></i>Voltar
+</a>
+<button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addMaterialModal">
+    <i class="bi bi-plus-circle me-1"></i>Novo Material
+</button>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    {% if materials %}
+        {% for material in materials %}
+        <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+            <div class="card card-custom h-100">
+                <div class="position-relative">
+                    {% if material.image_filename %}
+                        <img src="{{ url_for('static', filename='uploads/' + material.image_filename) }}" 
+                             class="card-img-top material-img" alt="{{ material.name }}">
+                    {% else %}
+                        <div class="material-img-placeholder d-flex align-items-center justify-content-center">
+                            <i class="bi bi-image text-muted display-4"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-img-overlay d-flex justify-content-end align-items-start p-2">
+                        <div class="btn-group shadow">
+                            <button class="btn btn-dark btn-sm opacity-75" data-bs-toggle="modal" data-bs-target="#editMaterialModal{{ material.id }}">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm opacity-75" data-bs-toggle="modal" data-bs-target="#deleteMaterialModal{{ material.id }}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-title fw-bold mb-1">{{ material.name }}</h6>
+                    <p class="card-text text-muted small mb-0">
+                        {{ material.description or 'Sem descrição' }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Modal -->
+        <div class="modal fade" id="editMaterialModal{{ material.id }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form method="POST" action="{{ url_for('models_blueprint.edit_material', model_id=model.id, item_id=material.id) }}" enctype="multipart/form-data">
+                        <div class="modal-header">
+                            <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Editar Material</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Nome do Material</label>
+                                <input type="text" class="form-control" name="name" value="{{ material.name }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Descrição</label>
+                                <textarea class="form-control" name="description" rows="3">{{ material.description or '' }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Alterar Foto (Opcional)</label>
+                                <input type="file" class="form-control" name="photo" accept="image/*">
+                                <small class="text-muted">Deixe em branco para manter a foto atual.</small>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Modal -->
+        <div class="modal fade" id="deleteMaterialModal{{ material.id }}" tabindex="-1">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title">Excluir Material?</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body py-0">
+                        <p>Tem certeza que deseja excluir <strong>{{ material.name }}</strong>?</p>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Não</button>
+                        <form method="POST" action="{{ url_for('models_blueprint.delete_material', model_id=model.id, item_id=material.id) }}">
+                            <button type="submit" class="btn btn-danger btn-sm">Sim, Excluir</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12 text-center py-5">
+            <div class="metric-icon purple mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2.5rem;">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <h5 class="text-muted">Nenhum material cadastrado para este modelo.</h5>
+            <p class="text-muted small">Clique em "Novo Material" para começar.</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addMaterialModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('models_blueprint.create_material', model_id=model.id) }}" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Novo Material</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nome do Material</label>
+                        <input type="text" class="form-control" name="name" placeholder="Ex: Cabo SATA" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descrição</label>
+                        <textarea class="form-control" name="description" rows="3" placeholder="Opcional..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Foto do Material</label>
+                        <input type="file" class="form-control" name="photo" accept="image/*">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle me-1"></i>Cadastrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.material-img {
+    height: 180px;
+    object-fit: cover;
+    border-bottom: 1px solid var(--border-color);
+}
+.material-img-placeholder {
+    height: 180px;
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid var(--border-color);
+}
+.card-img-overlay {
+    background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 40%);
+}
+</style>
+{% endblock %}
