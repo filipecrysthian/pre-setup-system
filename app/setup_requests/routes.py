@@ -46,9 +46,7 @@ def generate_form(model_id):
     """Carrega o formulário de preenchimento com os itens do template."""
     model = ProductModel.query.get_or_404(model_id)
     template_items = TemplateItem.query.filter_by(product_model_id=model_id).all()
-
-    # num_bays = request.args.get('num_bays', 1)
-    # station = request.args.get('station', model.station or 'FCT')
+    materials = Item.query.filter_by(product_model_id=model_id, is_active=True).order_by(Item.name).all()
 
     num_bays = request.args.get('num_bays', 1)
     station = request.args.get('station', model.station or 'FCT')
@@ -56,6 +54,7 @@ def generate_form(model_id):
     return render_template('setup/generate_form.html',
                            model=model,
                            template_items=template_items,
+                           materials=materials,
                            num_bays=num_bays,
                            station=station)
 
@@ -65,18 +64,16 @@ def generate_form(model_id):
 def generate_submit(model_id):
     """Processa o formulário e gera o pré setup com PDF."""
     model = ProductModel.query.get_or_404(model_id)
-    template_items = TemplateItem.query.filter_by(product_model_id=model_id).all()
-
-    # Template validation removed as per request
+    materials = Item.query.filter_by(product_model_id=model_id, is_active=True).order_by(Item.name).all()
 
     # Coletar dados do formulário
     setup_items_data = []
     has_pending = False
     all_filled = True
 
-    for ti in template_items:
-        status = request.form.get(f'status_{ti.id}', '').strip()
-        observation = request.form.get(f'observation_{ti.id}', '').strip()
+    for material in materials:
+        status = request.form.get(f'status_{material.id}', '').strip()
+        observation = request.form.get(f'observation_{material.id}', '').strip()
 
         # Validar que todos os itens têm status
         if not status:
@@ -85,19 +82,19 @@ def generate_submit(model_id):
 
         # Validar observação obrigatória para PENDENTE
         if status == 'PENDENTE' and not observation:
-            flash(f'O item "{ti.item.name}" com status PENDENTE requer uma observação.', 'danger')
+            flash(f'O item "{material.name}" com status PENDENTE requer uma observação.', 'danger')
             return redirect(url_for('setup_requests.generate_form', model_id=model_id))
 
         if status == 'PENDENTE':
             has_pending = True
 
         setup_items_data.append({
-            'template_item': ti,
+            'material': material,
             'status': status,
             'observation': observation
         })
 
-    if not all_filled:
+    if not all_filled and materials:
         flash('Todos os itens devem ter um status preenchido.', 'danger')
         return redirect(url_for('setup_requests.generate_form', model_id=model_id))
 
@@ -117,12 +114,12 @@ def generate_submit(model_id):
 
     # Criar itens do pré setup
     for data in setup_items_data:
-        ti = data['template_item']
+        mat = data['material']
         setup_item = PreSetupItem(
             pre_setup_id=pre_setup.id,
-            item_id=ti.item_id,
-            group_area=ti.group_area,
-            quantity=ti.quantity,
+            item_id=mat.id,
+            group_area=mat.category or 'GERAL',
+            quantity=mat.quantity,
             status=data['status'],
             observation=data['observation'] or None
         )

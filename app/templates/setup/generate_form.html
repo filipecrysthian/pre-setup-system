@@ -13,8 +13,8 @@
     <div class="card card-custom mb-4">
         <div class="card-header card-header-custom">
             <h5 class="mb-0">
-                <i class="bi bi-clipboard-check me-2"></i>Preencher Status dos Itens
-                <span class="badge bg-secondary ms-2">{{ template_items | length }} itens</span>
+                <i class="bi bi-clipboard-check me-2"></i>Preencher Status dos Materiais
+                <span class="badge bg-secondary ms-2">{{ materials | length }} itens</span>
                 <span class="badge bg-info ms-2">Baias: {{ num_bays }}</span>
                 <span class="badge bg-purple ms-2">Estação: {{ station }}</span>
             </h5>
@@ -26,24 +26,20 @@
                 <table class="table table-custom mb-0">
                     <thead>
                         <tr>
-                            <th>Grupo</th>
                             <th>Item</th>
-                            <th>Código</th>
-                            <th>Qtd</th>
+                            <th class="text-center">Qtd</th>
                             <th>Status</th>
                             <th>Observação</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for ti in template_items %}
-                        <tr class="setup-item-row" data-item-id="{{ ti.id }}">
-                            <td><span class="badge bg-group-{{ ti.group_area | lower | replace('é', 'e') | replace(' ', '') }}">{{ ti.group_area }}</span></td>
-                            <td class="fw-semibold">{{ ti.item.name }}</td>
-                            <td><code>{{ ti.item.internal_code or '-' }}</code></td>
-                            <td class="text-center">{{ ti.quantity }}</td>
-                            <td>
-                                <select class="form-select form-select-sm status-select" name="status_{{ ti.id }}" required
-                                        onchange="handleStatusChange(this, {{ ti.id }})">
+                        {% for material in materials %}
+                        <tr class="setup-item-row" data-item-id="{{ material.id }}">
+                            <td class="fw-semibold">{{ material.name }}</td>
+                            <td class="text-center">{{ material.quantity }}</td>
+                            <td style="min-width: 140px;">
+                                <select class="form-select form-select-sm status-select" name="status_{{ material.id }}" required
+                                        onchange="handleStatusChange(this, {{ material.id }})">
                                     <option value="">Selecione...</option>
                                     <option value="OK">OK</option>
                                     <option value="PENDENTE">PENDENTE</option>
@@ -51,14 +47,13 @@
                                 </select>
                             </td>
                             <td>
-                                <input type="text" class="form-control form-control-sm" name="observation_{{ ti.id }}"
-                                       id="obs_{{ ti.id }}" placeholder="Observação..."
-                                       {% if ti.observation %}value="{{ ti.observation }}"{% endif %}>
+                                <input type="text" class="form-control form-control-sm" name="observation_{{ material.id }}"
+                                       id="obs_{{ material.id }}" placeholder="Observação...">
                             </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="6" class="text-center py-4">
+                            <td colspan="4" class="text-center py-4">
                                 <i class="bi bi-exclamation-triangle text-warning display-6 d-block mb-2"></i>
                                 <span class="text-muted">Nenhum material cadastrado para este modelo.</span>
                                 <br>
@@ -74,7 +69,7 @@
 
     <div class="d-flex justify-content-between align-items-center">
         <div class="setup-progress">
-            <span class="text-muted" id="progressText">0 / {{ template_items | length }} itens preenchidos</span>
+            <span class="text-muted" id="progressText">0 / {{ materials | length }} itens preenchidos</span>
             <div class="progress mt-1" style="width: 200px; height: 6px;">
                 <div class="progress-bar bg-primary" id="progressBar" style="width: 0%"></div>
             </div>
@@ -88,7 +83,7 @@
 
 {% block scripts %}
 <script>
-    const totalItems = {{ template_items | length }};
+    const totalItems = {{ materials | length }};
 
     function handleStatusChange(select, itemId) {
         const obsInput = document.getElementById('obs_' + itemId);
