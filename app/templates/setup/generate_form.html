@@ -33,10 +33,15 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {% if model.product_type in ['Notebook', 'Tiny'] %}
+                            {% set qty_multiplier = 4 %}
+                        {% else %}
+                            {% set qty_multiplier = 3 %}
+                        {% endif %}
                         {% for material in materials %}
                         <tr class="setup-item-row" data-item-id="{{ material.id }}">
                             <td class="fw-semibold">{{ material.name }}</td>
-                            <td class="text-center">{{ material.quantity }}</td>
+                            <td class="text-center">{{ material.quantity * qty_multiplier * num_bays|int }}</td>
                             <td style="min-width: 140px;">
                                 <select class="form-select form-select-sm status-select" name="status_{{ material.id }}" required
                                         onchange="handleStatusChange(this, {{ material.id }})">

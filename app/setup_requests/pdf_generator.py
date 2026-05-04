@@ -114,6 +114,12 @@ def generate_pre_setup_pdf(pre_setup, model, items_data, user, output_path):
     # Cabeçalho da tabela
     table_data = [['Item', 'Qtd', 'Status', 'Observação']]
 
+    # Multiplicador de quantidade por tipo de produto
+    if model.product_type in ['Notebook', 'Tiny']:
+        qty_multiplier = 4
+    else:
+        qty_multiplier = 3
+
     # Contadores
     total_ok = 0
     total_pending = 0
@@ -131,9 +137,10 @@ def generate_pre_setup_pdf(pre_setup, model, items_data, user, output_path):
         elif status == 'N/A':
             total_na += 1
 
+        display_qty = material.quantity * qty_multiplier * pre_setup.num_bays
         table_data.append([
             Paragraph(material.name, cell_style),
-            str(material.quantity),
+            str(display_qty),
             status,
             Paragraph(obs, cell_style)
         ])
