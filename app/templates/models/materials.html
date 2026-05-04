@@ -38,10 +38,12 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <h6 class="card-title fw-bold mb-1">{{ material.name }}</h6>
+                    <h6 class="card-title fw-bold {% if material.description %}mb-1{% else %}mb-0{% endif %}">{{ material.name }}</h6>
+                    {% if material.description %}
                     <p class="card-text text-muted small mb-0">
-                        {{ material.description or 'Sem descrição' }}
+                        {{ material.description }}
                     </p>
+                    {% endif %}
                 </div>
             </div>
         </div>
