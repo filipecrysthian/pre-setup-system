@@ -26,7 +26,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(256), nullable=False)
     profile = db.Column(db.String(50), nullable=False, default='Engenharia')  # Admin, Engenharia
     is_active_user = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now)
 
     # Relacionamento com pré setups gerados
     setups = db.relationship('PreSetup', backref='user', lazy='dynamic')
@@ -58,7 +58,7 @@ class ProductModel(db.Model):
     product_type = db.Column(db.String(50), nullable=False)  # Notebook, Desktop, Tiny
     station = db.Column(db.String(50), nullable=True)  # FCT, SHELL, IO
     is_active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now)
 
     # Relacionamentos
     template_items = db.relationship('TemplateItem', backref='product_model', lazy='dynamic',
@@ -85,7 +85,7 @@ class Item(db.Model):
     image_filename = db.Column(db.String(300), nullable=True)
     quantity = db.Column(db.Integer, nullable=False, default=1)
     is_active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now)
 
     def __repr__(self):
         return f'<Item {self.name}>'
@@ -102,7 +102,7 @@ class TemplateItem(db.Model):
     group_area = db.Column(db.String(50), nullable=False)  # FCT, IO, SHELL, PERIFÉRICO, OUTROS
     quantity = db.Column(db.Integer, nullable=False, default=1)
     observation = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now)
 
     # Relacionamento com Item
     item = db.relationship('Item', backref='template_items')
@@ -121,7 +121,7 @@ class PreSetup(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     num_bays = db.Column(db.Integer, nullable=False, default=1)
     station = db.Column(db.String(50), nullable=False)  # FCT, SHELL, IO
-    generated_at = db.Column(db.DateTime, default=datetime.utcnow)
+    generated_at = db.Column(db.DateTime, default=datetime.now)
     overall_status = db.Column(db.String(50), nullable=False)  # CONCLUÍDO, COM PENDÊNCIA
     pdf_filename = db.Column(db.String(300), nullable=True)
     email_sent = db.Column(db.Boolean, default=False)
@@ -167,7 +167,7 @@ class EmailConfig(db.Model):
     password = db.Column(db.String(200), nullable=True)
     sender_email = db.Column(db.String(200), nullable=True)
     recipients = db.Column(db.Text, nullable=True)  # Lista de emails separados por ;
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
 
     def get_recipients_list(self):
         """Retorna lista de destinatários."""

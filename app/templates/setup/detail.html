@@ -96,9 +96,7 @@
             <table class="table table-custom mb-0">
                 <thead>
                     <tr>
-                        <th>Grupo</th>
                         <th>Item</th>
-                        <th>Código</th>
                         <th>Qtd</th>
                         <th>Status</th>
                         <th>Observação</th>
@@ -107,9 +105,7 @@
                 <tbody>
                     {% for si in setup_items %}
                     <tr class="{% if si.status == 'OK' %}status-ok{% elif si.status == 'PENDENTE' %}status-pending{% else %}status-na{% endif %}">
-                        <td><span class="badge bg-group-{{ si.group_area | lower | replace('é', 'e') | replace(' ', '') }}">{{ si.group_area }}</span></td>
                         <td class="fw-semibold">{{ si.item.name }}</td>
-                        <td><code>{{ si.item.internal_code or '-' }}</code></td>
                         <td class="text-center">{{ si.quantity }}</td>
                         <td>
                             {% if si.status == 'OK' %}

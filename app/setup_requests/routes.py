@@ -229,7 +229,7 @@ def send_email(setup_id):
     try:
         send_pre_setup_email(email_config, recipients, subject, body, pdf_path)
         setup.email_sent = True
-        setup.email_sent_at = datetime.utcnow()
+        setup.email_sent_at = datetime.now()
         db.session.commit()
         flash('Email enviado com sucesso!', 'success')
     except Exception as e:
