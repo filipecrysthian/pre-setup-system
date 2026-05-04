@@ -19,8 +19,8 @@
                         <th>ID</th>
                         <th>Nome</th>
                         <th>Tipo</th>
+                        <th>Estação</th>
                         <th>Status</th>
-                        <th>Templates</th>
                         <th>Criado em</th>
                         <th>Ações</th>
                     </tr>
@@ -39,13 +39,19 @@
                             </span>
                         </td>
                         <td>
+                            {% if model.station %}
+                                <span class="badge bg-secondary">{{ model.station }}</span>
+                            {% else %}
+                                <span class="text-muted small">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
                             {% if model.is_active %}
                                 <span class="badge bg-success">Ativo</span>
                             {% else %}
                                 <span class="badge bg-danger">Inativo</span>
                             {% endif %}
                         </td>
-                        <td><span class="badge bg-secondary">{{ model.template_items.count() }} itens</span></td>
                         <td>{{ model.created_at.strftime('%d/%m/%Y') }}</td>
                         <td>
                             <a href="{{ url_for('models_blueprint.materials', model_id=model.id) }}" 
@@ -99,6 +105,14 @@
                             {% endfor %}
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Estação</label>
+                        <select class="form-select" name="station" required>
+                            <option value="FCT" {% if model.station == 'FCT' %}selected{% endif %}>FCT</option>
+                            <option value="SHELL" {% if model.station == 'SHELL' %}selected{% endif %}>SHELL</option>
+                            <option value="IO" {% if model.station == 'IO' %}selected{% endif %}>IO</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -131,6 +145,14 @@
                             {% for pt in product_types %}
                             <option value="{{ pt }}">{{ pt }}</option>
                             {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Estação</label>
+                        <select class="form-select" name="station" required>
+                            <option value="FCT">FCT</option>
+                            <option value="SHELL">SHELL</option>
+                            <option value="IO">IO</option>
                         </select>
                     </div>
                 </div>

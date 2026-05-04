@@ -2,6 +2,12 @@
 {% block title %}Gerar Pré Setup{% endblock %}
 {% block page_title %}Gerar Pré Setup{% endblock %}
 
+{% block page_actions %}
+<button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#newSetupModal">
+    <i class="bi bi-plus-circle me-1"></i>Novo Pré Setup
+</button>
+{% endblock %}
+
 {% block content %}
 <div class="row g-4">
     {% if models %}
@@ -21,16 +27,10 @@
                     <h5 class="card-title">{{ model.name }}</h5>
                     <span class="badge bg-secondary mb-3">{{ model.product_type }}</span>
                     <p class="text-muted small">{{ model.template_items.count() }} itens no template</p>
-                    {% if model.template_items.count() > 0 %}
                     <a href="{{ url_for('setup_requests.generate_form', model_id=model.id) }}"
                        class="btn btn-primary w-100">
                         <i class="bi bi-file-earmark-plus me-1"></i>Iniciar Pré Setup
                     </a>
-                    {% else %}
-                    <button class="btn btn-secondary w-100" disabled>
-                        <i class="bi bi-exclamation-triangle me-1"></i>Sem Template
-                    </button>
-                    {% endif %}
                 </div>
             </div>
         </div>
@@ -41,5 +41,48 @@
         <p class="text-muted mt-3">Nenhum modelo ativo disponível.</p>
     </div>
     {% endif %}
+</div>
+</div>
+</div>
+
+<!-- New Setup Modal -->
+<div class="modal fade" id="newSetupModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="GET" action="{{ url_for('setup_requests.generate_form_redirect') }}">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-file-earmark-plus me-2"></i>Novo Pré Setup</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Modelo do Produto</label>
+                        <select class="form-select" name="model_id" required>
+                            <option value="">Selecione um modelo...</option>
+                            {% for model in models %}
+                            <option value="{{ model.id }}">{{ model.name }} ({{ model.station or 'N/A' }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Número de Baias</label>
+                        <input type="number" class="form-control" name="num_bays" value="1" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Estação</label>
+                        <select class="form-select" name="station" required>
+                            <option value="FCT">FCT</option>
+                            <option value="SHELL">SHELL</option>
+                            <option value="IO">IO</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Iniciar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}

@@ -56,6 +56,7 @@ class ProductModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), unique=True, nullable=False)
     product_type = db.Column(db.String(50), nullable=False)  # Notebook, Desktop, Tiny
+    station = db.Column(db.String(50), nullable=True)  # FCT, SHELL, IO
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -118,6 +119,8 @@ class PreSetup(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     product_model_id = db.Column(db.Integer, db.ForeignKey('product_models.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    num_bays = db.Column(db.Integer, nullable=False, default=1)
+    station = db.Column(db.String(50), nullable=False)  # FCT, SHELL, IO
     generated_at = db.Column(db.DateTime, default=datetime.utcnow)
     overall_status = db.Column(db.String(50), nullable=False)  # CONCLUÍDO, COM PENDÊNCIA
     pdf_filename = db.Column(db.String(300), nullable=True)

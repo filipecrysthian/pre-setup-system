@@ -30,6 +30,7 @@ def create():
     """Cria um novo modelo de produto."""
     name = request.form.get('name', '').strip()
     product_type = request.form.get('product_type', '').strip()
+    station = request.form.get('station', '').strip()
 
     # Validações
     if not name:
@@ -46,7 +47,7 @@ def create():
         flash('Já existe um modelo com este nome.', 'warning')
         return redirect(url_for('models_blueprint.index'))
 
-    model = ProductModel(name=name, product_type=product_type)
+    model = ProductModel(name=name, product_type=product_type, station=station)
     db.session.add(model)
     db.session.commit()
 
@@ -62,6 +63,7 @@ def edit(model_id):
 
     name = request.form.get('name', '').strip()
     product_type = request.form.get('product_type', '').strip()
+    station = request.form.get('station', '').strip()
 
     if not name:
         flash('O nome do modelo é obrigatório.', 'danger')
@@ -82,6 +84,7 @@ def edit(model_id):
 
     model.name = name
     model.product_type = product_type
+    model.station = station
     db.session.commit()
 
     flash(f'Modelo "{name}" atualizado com sucesso!', 'success')

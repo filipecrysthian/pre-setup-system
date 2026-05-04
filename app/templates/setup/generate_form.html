@@ -15,8 +15,12 @@
             <h5 class="mb-0">
                 <i class="bi bi-clipboard-check me-2"></i>Preencher Status dos Itens
                 <span class="badge bg-secondary ms-2">{{ template_items | length }} itens</span>
+                <span class="badge bg-info ms-2">Baias: {{ num_bays }}</span>
+                <span class="badge bg-purple ms-2">Estação: {{ station }}</span>
             </h5>
         </div>
+        <input type="hidden" name="num_bays" value="{{ num_bays }}">
+        <input type="hidden" name="station" value="{{ station }}">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-custom mb-0">
@@ -50,6 +54,15 @@
                                 <input type="text" class="form-control form-control-sm" name="observation_{{ ti.id }}"
                                        id="obs_{{ ti.id }}" placeholder="Observação..."
                                        {% if ti.observation %}value="{{ ti.observation }}"{% endif %}>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <i class="bi bi-exclamation-triangle text-warning display-6 d-block mb-2"></i>
+                                <span class="text-muted">Nenhum material cadastrado para este modelo.</span>
+                                <br>
+                                <small class="text-muted">Você ainda pode gerar o documento apenas com as informações do cabeçalho.</small>
                             </td>
                         </tr>
                         {% endfor %}

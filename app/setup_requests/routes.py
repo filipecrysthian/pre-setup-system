@@ -22,6 +22,23 @@ def generate_select():
     models = ProductModel.query.filter_by(is_active=True).order_by(ProductModel.name).all()
     return render_template('setup/generate_select.html', models=models)
 
+@setup_bp.route('/generate/redirect')
+@login_required
+def generate_form_redirect():
+    """Redireciona para o formulário com os parâmetros do modal."""
+    model_id = request.args.get('model_id')
+    num_bays = request.args.get('num_bays', 1)
+    station = request.args.get('station', 'FCT')
+    
+    if not model_id:
+        flash('Modelo é obrigatório.', 'danger')
+        return redirect(url_for('setup_requests.generate_select'))
+        
+    return redirect(url_for('setup_requests.generate_form', 
+                            model_id=model_id, 
+                            num_bays=num_bays, 
+                            station=station))
+
 
 @setup_bp.route('/generate/<int:model_id>')
 @login_required
@@ -30,13 +47,17 @@ def generate_form(model_id):
     model = ProductModel.query.get_or_404(model_id)
     template_items = TemplateItem.query.filter_by(product_model_id=model_id).all()
 
-    if not template_items:
-        flash('Este modelo não possui template de pré setup. Cadastre os itens primeiro.', 'warning')
-        return redirect(url_for('setup_requests.generate_select'))
+    # num_bays = request.args.get('num_bays', 1)
+    # station = request.args.get('station', model.station or 'FCT')
+
+    num_bays = request.args.get('num_bays', 1)
+    station = request.args.get('station', model.station or 'FCT')
 
     return render_template('setup/generate_form.html',
                            model=model,
-                           template_items=template_items)
+                           template_items=template_items,
+                           num_bays=num_bays,
+                           station=station)
 
 
 @setup_bp.route('/generate/<int:model_id>/submit', methods=['POST'])
@@ -46,9 +67,7 @@ def generate_submit(model_id):
     model = ProductModel.query.get_or_404(model_id)
     template_items = TemplateItem.query.filter_by(product_model_id=model_id).all()
 
-    if not template_items:
-        flash('Template vazio. Não é possível gerar pré setup.', 'danger')
-        return redirect(url_for('setup_requests.generate_select'))
+    # Template validation removed as per request
 
     # Coletar dados do formulário
     setup_items_data = []
@@ -89,6 +108,8 @@ def generate_submit(model_id):
     pre_setup = PreSetup(
         product_model_id=model_id,
         user_id=current_user.id,
+        num_bays=int(request.form.get('num_bays', 1)),
+        station=request.form.get('station', 'FCT'),
         overall_status=overall_status
     )
     db.session.add(pre_setup)
