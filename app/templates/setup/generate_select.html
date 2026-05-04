@@ -2,11 +2,6 @@
 {% block title %}Gerar Pré Setup{% endblock %}
 {% block page_title %}Gerar Pré Setup{% endblock %}
 
-{% block page_actions %}
-<button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#newSetupModal">
-    <i class="bi bi-plus-circle me-1"></i>Novo Pré Setup
-</button>
-{% endblock %}
 
 {% block content %}
 <div class="row g-4">
@@ -26,11 +21,74 @@
                     </div>
                     <h5 class="card-title">{{ model.name }}</h5>
                     <span class="badge bg-secondary mb-3">{{ model.product_type }}</span>
-                    <p class="text-muted small">{{ model.template_items.count() }} itens no template</p>
-                    <a href="{{ url_for('setup_requests.generate_form', model_id=model.id) }}"
-                       class="btn btn-primary w-100">
+                    <p class="text-muted small">{{ model.items.count() }} materiais cadastrados</p>
+                    
+                    <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#setupModal{{ model.id }}">
                         <i class="bi bi-file-earmark-plus me-1"></i>Iniciar Pré Setup
-                    </a>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Setup Modal for Model {{ model.name }} -->
+        <div class="modal fade" id="setupModal{{ model.id }}" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <form method="GET" action="{{ url_for('setup_requests.generate_form', model_id=model.id) }}">
+                        <div class="modal-header">
+                            <h5 class="modal-title"><i class="bi bi-gear-fill me-2"></i>Configurar Pré Setup: {{ model.name }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Número de Baias</label>
+                                    <input type="number" class="form-control" name="num_bays" value="1" min="1" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Estação</label>
+                                    <select class="form-select" name="station" required>
+                                        <option value="FCT" {% if model.station == 'FCT' %}selected{% endif %}>FCT</option>
+                                        <option value="SHELL" {% if model.station == 'SHELL' %}selected{% endif %}>SHELL</option>
+                                        <option value="IO" {% if model.station == 'IO' %}selected{% endif %}>IO</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <hr>
+                            <h6 class="fw-bold mb-3"><i class="bi bi-box-seam me-2"></i>Materiais do Modelo</h6>
+                            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                                <table class="table table-sm table-custom mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Material</th>
+                                            <th class="text-center">Qtd Padrão</th>
+                                            <th>Descrição</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in model.items %}
+                                        <tr>
+                                            <td class="fw-semibold">{{ item.name }}</td>
+                                            <td class="text-center">{{ item.quantity }}</td>
+                                            <td class="small text-muted">{{ item.description or '-' }}</td>
+                                        </tr>
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="3" class="text-center py-3 text-muted">Nenhum material cadastrado.</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-1"></i>Confirmar e Iniciar
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -41,48 +99,5 @@
         <p class="text-muted mt-3">Nenhum modelo ativo disponível.</p>
     </div>
     {% endif %}
-</div>
-</div>
-</div>
-
-<!-- New Setup Modal -->
-<div class="modal fade" id="newSetupModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="GET" action="{{ url_for('setup_requests.generate_form_redirect') }}">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-file-earmark-plus me-2"></i>Novo Pré Setup</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Modelo do Produto</label>
-                        <select class="form-select" name="model_id" required>
-                            <option value="">Selecione um modelo...</option>
-                            {% for model in models %}
-                            <option value="{{ model.id }}">{{ model.name }} ({{ model.station or 'N/A' }})</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Número de Baias</label>
-                        <input type="number" class="form-control" name="num_bays" value="1" min="1" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Estação</label>
-                        <select class="form-select" name="station" required>
-                            <option value="FCT">FCT</option>
-                            <option value="SHELL">SHELL</option>
-                            <option value="IO">IO</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Iniciar</button>
-                </div>
-            </form>
-        </div>
-    </div>
 </div>
 {% endblock %}
