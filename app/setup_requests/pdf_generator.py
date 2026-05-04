@@ -89,6 +89,8 @@ def generate_pre_setup_pdf(pre_setup, model, items_data, user, output_path):
         ['Responsável:', user.name],
         ['Modelo:', model.name],
         ['Tipo:', model.product_type],
+        ['Estação:', pre_setup.station],
+        ['Nº de Baias:', str(pre_setup.num_bays)],
         ['Status Geral:', pre_setup.overall_status],
     ]
 
@@ -110,7 +112,7 @@ def generate_pre_setup_pdf(pre_setup, model, items_data, user, output_path):
     elements.append(Paragraph('Itens do Pré Setup', header_style))
 
     # Cabeçalho da tabela
-    table_data = [['Grupo', 'Código', 'Item', 'Qtd', 'Status', 'Observação']]
+    table_data = [['Item', 'Qtd', 'Status', 'Observação']]
 
     # Contadores
     total_ok = 0
@@ -118,8 +120,7 @@ def generate_pre_setup_pdf(pre_setup, model, items_data, user, output_path):
     total_na = 0
 
     for data in items_data:
-        ti = data['template_item']
-        item = ti.item
+        material = data['material']
         status = data['status']
         obs = data['observation'] or ''
 
@@ -131,16 +132,14 @@ def generate_pre_setup_pdf(pre_setup, model, items_data, user, output_path):
             total_na += 1
 
         table_data.append([
-            Paragraph(ti.group_area, cell_style),
-            Paragraph(item.internal_code or '-', cell_style),
-            Paragraph(item.name, cell_style),
-            str(ti.quantity),
+            Paragraph(material.name, cell_style),
+            str(material.quantity),
             status,
             Paragraph(obs, cell_style)
         ])
 
-    # Definir larguras das colunas
-    col_widths = [55, 60, 140, 30, 55, 140]
+    # Definir larguras das colunas: Item, Qtd, Status, Observação
+    col_widths = [200, 40, 70, 170]
 
     items_table = Table(table_data, colWidths=col_widths, repeatRows=1)
     items_table.setStyle(TableStyle([
@@ -154,8 +153,8 @@ def generate_pre_setup_pdf(pre_setup, model, items_data, user, output_path):
         # Corpo da tabela
         ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
         ('FONTSIZE', (0, 1), (-1, -1), 8),
-        ('ALIGN', (3, 1), (3, -1), 'CENTER'),  # Quantidade centralizada
-        ('ALIGN', (4, 1), (4, -1), 'CENTER'),  # Status centralizado
+        ('ALIGN', (1, 1), (1, -1), 'CENTER'),  # Quantidade centralizada
+        ('ALIGN', (2, 1), (2, -1), 'CENTER'),  # Status centralizado
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
 
         # Bordas
@@ -176,16 +175,16 @@ def generate_pre_setup_pdf(pre_setup, model, items_data, user, output_path):
                 ('BACKGROUND', (0, i), (-1, i), colors.HexColor('#f5f5f5'))
             ]))
         # Colorir status
-        status_val = table_data[i][4] if isinstance(table_data[i][4], str) else ''
+        status_val = table_data[i][2] if isinstance(table_data[i][2], str) else ''
         if status_val == 'OK':
             items_table.setStyle(TableStyle([
-                ('TEXTCOLOR', (4, i), (4, i), colors.HexColor('#2e7d32')),
-                ('FONTNAME', (4, i), (4, i), 'Helvetica-Bold'),
+                ('TEXTCOLOR', (2, i), (2, i), colors.HexColor('#2e7d32')),
+                ('FONTNAME', (2, i), (2, i), 'Helvetica-Bold'),
             ]))
         elif status_val == 'PENDENTE':
             items_table.setStyle(TableStyle([
-                ('TEXTCOLOR', (4, i), (4, i), colors.HexColor('#e65100')),
-                ('FONTNAME', (4, i), (4, i), 'Helvetica-Bold'),
+                ('TEXTCOLOR', (2, i), (2, i), colors.HexColor('#e65100')),
+                ('FONTNAME', (2, i), (2, i), 'Helvetica-Bold'),
             ]))
 
     elements.append(items_table)
