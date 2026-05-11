@@ -12,8 +12,38 @@
 <div class="card card-custom">
     <div class="card-body p-0">
         {% if models %}
+        <!-- Filtros -->
+        <div class="row m-3">
+            <div class="col-md-4 mb-2">
+                <input type="text" id="searchInput" class="form-control" placeholder="Pesquisar por nome...">
+            </div>
+            <div class="col-md-3 mb-2">
+                <select id="typeFilter" class="form-select">
+                    <option value="">Todos os Tipos</option>
+                    {% for pt in product_types %}
+                    <option value="{{ pt | lower }}">{{ pt }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 mb-2">
+                <select id="stationFilter" class="form-select">
+                    <option value="">Todas as Estações</option>
+                    <option value="fct">FCT</option>
+                    <option value="shell">SHELL</option>
+                    <option value="io">IO</option>
+                </select>
+            </div>
+            <div class="col-md-2 mb-2">
+                <select id="statusFilter" class="form-select">
+                    <option value="">Status (Todos)</option>
+                    <option value="ativo">Ativo</option>
+                    <option value="inativo">Inativo</option>
+                </select>
+            </div>
+        </div>
+
         <div class="table-responsive">
-            <table class="table table-custom mb-0">
+            <table class="table table-custom mb-0" id="modelsTable">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -25,9 +55,9 @@
                         <th>Ações</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="modelsTableBody">
                     {% for model in models %}
-                    <tr>
+                    <tr class="model-row" data-name="{{ model.name | lower }}" data-type="{{ model.product_type | lower }}" data-station="{{ model.station | lower if model.station else '' }}" data-status="{{ 'ativo' if model.is_active else 'inativo' }}">
                         <td><span class="badge bg-secondary">#{{ model.id }}</span></td>
                         <td class="fw-semibold">{{ model.name }}</td>
                         <td>
@@ -164,4 +194,46 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchInput = document.getElementById('searchInput');
+        const typeFilter = document.getElementById('typeFilter');
+        const stationFilter = document.getElementById('stationFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const rows = document.querySelectorAll('.model-row');
+
+        function filterTable() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const typeTerm = typeFilter.value.toLowerCase();
+            const stationTerm = stationFilter.value.toLowerCase();
+            const statusTerm = statusFilter.value.toLowerCase();
+
+            rows.forEach(row => {
+                const name = row.getAttribute('data-name');
+                const type = row.getAttribute('data-type');
+                const station = row.getAttribute('data-station');
+                const status = row.getAttribute('data-status');
+
+                const matchesSearch = name.includes(searchTerm);
+                const matchesType = typeTerm === "" || type === typeTerm;
+                const matchesStation = stationTerm === "" || station === stationTerm;
+                const matchesStatus = statusTerm === "" || status === statusTerm;
+
+                if (matchesSearch && matchesType && matchesStation && matchesStatus) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        searchInput.addEventListener('input', filterTable);
+        typeFilter.addEventListener('change', filterTable);
+        stationFilter.addEventListener('change', filterTable);
+        statusFilter.addEventListener('change', filterTable);
+    });
+</script>
 {% endblock %}

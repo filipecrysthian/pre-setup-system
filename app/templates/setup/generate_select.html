@@ -4,10 +4,22 @@
 
 
 {% block content %}
-<div class="row g-4">
+<!-- Search Bar -->
+<div class="row mb-4">
+    <div class="col-md-6 col-lg-4">
+        <div class="input-group">
+            <span class="input-group-text border-secondary">
+                <i class="bi bi-search"></i>
+            </span>
+            <input type="text" id="searchModel" class="form-control border-secondary" placeholder="Pesquisar modelo, tipo ou estação...">
+        </div>
+    </div>
+</div>
+
+<div class="row g-4" id="modelsContainer">
     {% if models %}
         {% for model in models %}
-        <div class="col-xl-4 col-md-6">
+        <div class="col-xl-4 col-md-6 model-item" data-name="{{ model.name | lower }}" data-type="{{ model.product_type | lower }}" data-station="{{ model.station | lower if model.station else '' }}">
             <div class="card card-custom generate-model-card" role="button"
                  data-bs-toggle="modal" data-bs-target="#setupModal{{ model.id }}"
                  style="cursor: pointer;">
@@ -100,4 +112,31 @@
     </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchModel');
+    const modelItems = document.querySelectorAll('.model-item');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase().trim();
+
+            modelItems.forEach(item => {
+                const name = item.getAttribute('data-name') || '';
+                const type = item.getAttribute('data-type') || '';
+                const station = item.getAttribute('data-station') || '';
+                
+                if (name.includes(searchTerm) || type.includes(searchTerm) || station.includes(searchTerm)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+</script>
 {% endblock %}

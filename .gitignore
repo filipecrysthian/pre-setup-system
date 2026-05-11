@@ -155,6 +155,7 @@ cython_debug/
 .vscode/
 
 # Project Specific
+generated_pdfs/*
 instance/database.db
 app/static/uploads/*
 !app/static/uploads/.gitkeep
@@ -163,3 +164,4 @@ generated_pdfs/*
 *.pdf
 update_db.py
 update_db_v2.py
+cadastro_modelos.sql
