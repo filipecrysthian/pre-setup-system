@@ -29,7 +29,7 @@ def generate_form_redirect():
     """Redireciona para o formulário com os parâmetros do modal."""
     model_id = request.args.get('model_id')
     num_bays = request.args.get('num_bays', 1)
-    station = request.args.get('station', 'FCT')
+    linha = request.args.get('linha', 'LM04')
     
     if not model_id:
         flash('Modelo é obrigatório.', 'danger')
@@ -38,7 +38,7 @@ def generate_form_redirect():
     return redirect(url_for('setup_requests.generate_form', 
                             model_id=model_id, 
                             num_bays=num_bays, 
-                            station=station))
+                            linha=linha))
 
 
 @setup_bp.route('/generate/<int:model_id>')
@@ -50,14 +50,14 @@ def generate_form(model_id):
     materials = Item.query.filter_by(product_model_id=model_id, is_active=True).order_by(Item.name).all()
 
     num_bays = request.args.get('num_bays', 1)
-    station = request.args.get('station', model.station or 'FCT')
+    linha = request.args.get('linha', 'LM04')
 
     return render_template('setup/generate_form.html',
                            model=model,
                            template_items=template_items,
                            materials=materials,
                            num_bays=num_bays,
-                           station=station)
+                           linha=linha)
 
 
 @setup_bp.route('/generate/<int:model_id>/submit', methods=['POST'])
@@ -107,7 +107,7 @@ def generate_submit(model_id):
         product_model_id=model_id,
         user_id=current_user.id,
         num_bays=int(request.form.get('num_bays', 1)),
-        station=request.form.get('station', 'FCT'),
+        linha=request.form.get('linha', 'LM04'),
         overall_status=overall_status
     )
     db.session.add(pre_setup)

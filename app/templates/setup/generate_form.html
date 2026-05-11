@@ -16,11 +16,11 @@
                 <i class="bi bi-clipboard-check me-2"></i>Preencher Status dos Materiais
                 <span class="badge bg-secondary ms-2">{{ materials | length }} itens</span>
                 <span class="badge bg-info ms-2">Baias: {{ num_bays }}</span>
-                <span class="badge bg-purple ms-2">Estação: {{ station }}</span>
+                <span class="badge bg-purple ms-2">Linha: {{ linha }}</span>
             </h5>
         </div>
         <input type="hidden" name="num_bays" value="{{ num_bays }}">
-        <input type="hidden" name="station" value="{{ station }}">
+        <input type="hidden" name="linha" value="{{ linha }}">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-custom mb-0">

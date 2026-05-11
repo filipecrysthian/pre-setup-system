@@ -89,7 +89,7 @@ def generate_pre_setup_pdf(pre_setup, model, items_data, user, output_path):
         ['Responsável:', user.name],
         ['Modelo:', model.name],
         ['Tipo:', model.product_type],
-        ['Estação:', pre_setup.station],
+        ['Linha:', pre_setup.linha],
         ['Nº de Baias:', str(pre_setup.num_bays)],
         ['Status Geral:', pre_setup.overall_status],
     ]

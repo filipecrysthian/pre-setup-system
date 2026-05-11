@@ -58,11 +58,14 @@
                                     <input type="number" class="form-control" name="num_bays" value="1" min="1" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Estação</label>
-                                    <select class="form-select" name="station" required>
-                                        <option value="FCT" {% if model.station == 'FCT' %}selected{% endif %}>FCT</option>
-                                        <option value="SHELL" {% if model.station == 'SHELL' %}selected{% endif %}>SHELL</option>
-                                        <option value="IO" {% if model.station == 'IO' %}selected{% endif %}>IO</option>
+                                    <label class="form-label fw-bold">Linha</label>
+                                    <select class="form-select" name="linha" required>
+                                        <option value="LM04">LM04</option>
+                                        <option value="LM06">LM06</option>
+                                        <option value="LM08">LM08</option>
+                                        <option value="LM10">LM10</option>
+                                        <option value="LM12">LM12</option>
+                                        <option value="LM14">LM14</option>
                                     </select>
                                 </div>
                             </div>

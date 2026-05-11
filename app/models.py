@@ -121,7 +121,7 @@ class PreSetup(db.Model):
     product_model_id = db.Column(db.Integer, db.ForeignKey('product_models.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     num_bays = db.Column(db.Integer, nullable=False, default=1)
-    station = db.Column(db.String(50), nullable=False)  # FCT, SHELL, IO
+    linha = db.Column(db.String(50), nullable=False, default='LM04')  # LM04, LM06, etc.
     generated_at = db.Column(db.DateTime, default=datetime.now)
     overall_status = db.Column(db.String(50), nullable=False)  # CONCLUÍDO, COM PENDÊNCIA
     pdf_filename = db.Column(db.String(300), nullable=True)
