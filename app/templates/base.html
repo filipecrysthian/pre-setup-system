@@ -39,12 +39,14 @@
                     <span>Dashboard</span>
                 </a>
             </li>
+            {% if current_user.profile == 'Admin' %}
             <li class="sidebar-nav-item">
                 <a href="{{ url_for('models_blueprint.index') }}" class="sidebar-nav-link {% if 'models_blueprint' in request.endpoint %}active{% endif %}">
                     <i class="bi bi-cpu"></i>
                     <span>Modelos</span>
                 </a>
             </li>
+            {% endif %}
             <!-- <li class="sidebar-nav-item">
                 <a href="{{ url_for('items.index') }}" class="sidebar-nav-link {% if 'items' in request.endpoint %}active{% endif %}">
                     <i class="bi bi-box-seam"></i>
@@ -73,6 +75,7 @@
                 </a>
             </li>
 
+            {% if current_user.profile == 'Admin' %}
             <li class="sidebar-divider"></li>
 
             <li class="sidebar-nav-item">
@@ -87,6 +90,7 @@
                     <span>Usuários</span>
                 </a>
             </li>
+            {% endif %}
         </ul>
 
         <div class="sidebar-footer">

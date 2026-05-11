@@ -6,6 +6,7 @@ import os
 from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
 from flask_login import login_required
+from app.auth.decorators import admin_required
 from werkzeug.utils import secure_filename
 from app.extensions import db
 from app.models import ProductModel, Item
@@ -18,6 +19,7 @@ PRODUCT_TYPES = ['Notebook', 'Desktop', 'Tiny']
 
 @models_bp.route('/')
 @login_required
+@admin_required
 def index():
     """Lista todos os modelos cadastrados."""
     models = ProductModel.query.order_by(ProductModel.name).all()
@@ -26,6 +28,7 @@ def index():
 
 @models_bp.route('/create', methods=['POST'])
 @login_required
+@admin_required
 def create():
     """Cria um novo modelo de produto."""
     name = request.form.get('name', '').strip()
@@ -57,6 +60,7 @@ def create():
 
 @models_bp.route('/edit/<int:model_id>', methods=['POST'])
 @login_required
+@admin_required
 def edit(model_id):
     """Edita um modelo existente."""
     model = ProductModel.query.get_or_404(model_id)
@@ -93,6 +97,7 @@ def edit(model_id):
 
 @models_bp.route('/toggle/<int:model_id>', methods=['POST'])
 @login_required
+@admin_required
 def toggle_status(model_id):
     """Ativa/desativa um modelo."""
     model = ProductModel.query.get_or_404(model_id)
@@ -108,6 +113,7 @@ def toggle_status(model_id):
 
 @models_bp.route('/<int:model_id>/materials')
 @login_required
+@admin_required
 def materials(model_id):
     """Lista todos os materiais vinculados a um modelo específico."""
     model = ProductModel.query.get_or_404(model_id)
@@ -117,6 +123,7 @@ def materials(model_id):
 
 @models_bp.route('/<int:model_id>/materials/create', methods=['POST'])
 @login_required
+@admin_required
 def create_material(model_id):
     """Cadastra um novo material para o modelo."""
     model = ProductModel.query.get_or_404(model_id)
@@ -153,6 +160,7 @@ def create_material(model_id):
 
 @models_bp.route('/<int:model_id>/materials/edit/<int:item_id>', methods=['POST'])
 @login_required
+@admin_required
 def edit_material(model_id, item_id):
     """Edita um material de um modelo."""
     material = Item.query.get_or_404(item_id)
@@ -189,6 +197,7 @@ def edit_material(model_id, item_id):
 
 @models_bp.route('/<int:model_id>/materials/delete/<int:item_id>', methods=['POST'])
 @login_required
+@admin_required
 def delete_material(model_id, item_id):
     """Exclui um material de um modelo."""
     material = Item.query.get_or_404(item_id)

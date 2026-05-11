@@ -4,6 +4,7 @@ Gerencia configurações SMTP e lista de destinatários.
 """
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required
+from app.auth.decorators import admin_required
 from app.extensions import db
 from app.models import EmailConfig
 
@@ -12,6 +13,7 @@ email_bp = Blueprint('email_config', __name__, url_prefix='/email')
 
 @email_bp.route('/')
 @login_required
+@admin_required
 def index():
     """Tela de configuração de email."""
     config = EmailConfig.query.first()
@@ -20,6 +22,7 @@ def index():
 
 @email_bp.route('/save', methods=['POST'])
 @login_required
+@admin_required
 def save():
     """Salva as configurações de email."""
     smtp_host = request.form.get('smtp_host', '').strip()

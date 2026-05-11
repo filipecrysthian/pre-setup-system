@@ -14,8 +14,10 @@
                         <th>Modelo</th>
                         <th>Responsável</th>
                         <th>Data/Hora</th>
+                        {% if current_user.profile == 'Admin' %}
                         <th>Status Geral</th>
                         <th>Email Enviado</th>
+                        {% endif %}
                         <th>Ações</th>
                     </tr>
                 </thead>
@@ -26,6 +28,7 @@
                         <td class="fw-semibold">{{ setup.product_model.name }}</td>
                         <td>{{ setup.user.name }}</td>
                         <td>{{ setup.generated_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                        {% if current_user.profile == 'Admin' %}
                         <td>
                             {% if setup.overall_status == 'CONCLUÍDO' %}
                                 <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Concluído</span>
@@ -40,6 +43,7 @@
                                 <span class="badge bg-secondary">Não</span>
                             {% endif %}
                         </td>
+                        {% endif %}
                         <td>
                             <a href="{{ url_for('setup_requests.detail', setup_id=setup.id) }}" class="btn btn-sm btn-outline-primary" title="Ver detalhes">
                                 <i class="bi bi-eye"></i>

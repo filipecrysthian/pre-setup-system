@@ -8,6 +8,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
     send_file, current_app, jsonify
 from flask_login import login_required, current_user
 from app.extensions import db
+from app.auth.decorators import admin_required
 from app.models import ProductModel, TemplateItem, PreSetup, PreSetupItem, Item, EmailConfig
 from app.setup_requests.pdf_generator import generate_pre_setup_pdf
 from app.setup_requests.email_sender import send_pre_setup_email
@@ -193,6 +194,7 @@ def download_pdf(setup_id):
 
 @setup_bp.route('/send-email/<int:setup_id>', methods=['POST'])
 @login_required
+@admin_required
 def send_email(setup_id):
     """Envia o PDF por email para os destinatários configurados."""
     setup = PreSetup.query.get_or_404(setup_id)

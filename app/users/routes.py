@@ -4,6 +4,7 @@ CRUD de usuários com perfis Admin e Engenharia.
 """
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
+from app.auth.decorators import admin_required
 from app.extensions import db
 from app.models import User
 
@@ -14,6 +15,7 @@ PROFILES = ['Admin', 'Engenharia']
 
 @users_bp.route('/')
 @login_required
+@admin_required
 def index():
     """Lista todos os usuários."""
     users = User.query.order_by(User.name).all()
@@ -22,6 +24,7 @@ def index():
 
 @users_bp.route('/create', methods=['POST'])
 @login_required
+@admin_required
 def create():
     """Cria um novo usuário."""
     name = request.form.get('name', '').strip()
@@ -60,6 +63,7 @@ def create():
 
 @users_bp.route('/edit/<int:user_id>', methods=['POST'])
 @login_required
+@admin_required
 def edit(user_id):
     """Edita um usuário existente."""
     user = User.query.get_or_404(user_id)
@@ -98,6 +102,7 @@ def edit(user_id):
 
 @users_bp.route('/toggle/<int:user_id>', methods=['POST'])
 @login_required
+@admin_required
 def toggle_status(user_id):
     """Ativa/desativa um usuário."""
     user = User.query.get_or_404(user_id)
