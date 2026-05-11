@@ -25,24 +25,31 @@ def index():
 def create():
     """Cria um novo usuário."""
     name = request.form.get('name', '').strip()
+    username = request.form.get('username', '').strip()
     email = request.form.get('email', '').strip()
     password = request.form.get('password', '')
     profile = request.form.get('profile', 'Engenharia')
 
-    if not name or not email or not password:
-        flash('Nome, email e senha são obrigatórios.', 'danger')
+    if not name or not username or not password:
+        flash('Nome, username e senha são obrigatórios.', 'danger')
         return redirect(url_for('users.index'))
 
     if profile not in PROFILES:
         flash('Perfil inválido.', 'danger')
         return redirect(url_for('users.index'))
 
-    existing = User.query.filter_by(email=email).first()
-    if existing:
-        flash('Já existe um usuário com este email.', 'warning')
+    existing_username = User.query.filter_by(username=username).first()
+    if existing_username:
+        flash('Já existe um usuário com este username.', 'warning')
         return redirect(url_for('users.index'))
 
-    user = User(name=name, email=email, profile=profile)
+    if email:
+        existing_email = User.query.filter_by(email=email).first()
+        if existing_email:
+            flash('Já existe um usuário com este email.', 'warning')
+            return redirect(url_for('users.index'))
+
+    user = User(name=name, username=username, email=email or None, profile=profile)
     user.set_password(password)
     db.session.add(user)
     db.session.commit()
@@ -57,21 +64,29 @@ def edit(user_id):
     """Edita um usuário existente."""
     user = User.query.get_or_404(user_id)
     name = request.form.get('name', '').strip()
+    username = request.form.get('username', '').strip()
     email = request.form.get('email', '').strip()
     password = request.form.get('password', '')
     profile = request.form.get('profile', 'Engenharia')
 
-    if not name or not email:
-        flash('Nome e email são obrigatórios.', 'danger')
+    if not name or not username:
+        flash('Nome e username são obrigatórios.', 'danger')
         return redirect(url_for('users.index'))
 
-    existing = User.query.filter(User.email == email, User.id != user_id).first()
-    if existing:
-        flash('Já existe outro usuário com este email.', 'warning')
+    existing_username = User.query.filter(User.username == username, User.id != user_id).first()
+    if existing_username:
+        flash('Já existe outro usuário com este username.', 'warning')
         return redirect(url_for('users.index'))
+
+    if email:
+        existing_email = User.query.filter(User.email == email, User.id != user_id).first()
+        if existing_email:
+            flash('Já existe outro usuário com este email.', 'warning')
+            return redirect(url_for('users.index'))
 
     user.name = name
-    user.email = email
+    user.username = username
+    user.email = email or None
     user.profile = profile
     if password:
         user.set_password(password)

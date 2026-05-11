@@ -27,11 +27,11 @@
 
             <form method="POST" action="{{ url_for('auth.login') }}">
                 <div class="mb-3">
-                    <label for="email" class="form-label">
-                        <i class="bi bi-envelope me-1"></i>Email
+                    <label for="login_id" class="form-label">
+                        <i class="bi bi-person me-1"></i>Username ou Email
                     </label>
-                    <input type="email" class="form-control" id="email" name="email"
-                           placeholder="seu@email.com" required autofocus>
+                    <input type="text" class="form-control" id="login_id" name="login_id"
+                           placeholder="Seu username ou email" required autofocus>
                 </div>
                 <div class="mb-4">
                     <label for="password" class="form-label">

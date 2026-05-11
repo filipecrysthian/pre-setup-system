@@ -17,10 +17,10 @@ def login():
         return redirect(url_for('dashboard.index'))
 
     if request.method == 'POST':
-        email = request.form.get('email', '').strip()
+        login_id = request.form.get('login_id', '').strip()
         password = request.form.get('password', '')
 
-        user = User.query.filter_by(email=email).first()
+        user = User.query.filter((User.email == login_id) | (User.username == login_id)).first()
 
         if user and user.check_password(password):
             if not user.is_active:

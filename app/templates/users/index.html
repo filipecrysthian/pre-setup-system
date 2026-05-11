@@ -17,6 +17,7 @@
                 <thead>
                     <tr>
                         <th>Nome</th>
+                        <th>Username</th>
                         <th>Email</th>
                         <th>Perfil</th>
                         <th>Status</th>
@@ -28,7 +29,8 @@
                     {% for user in users %}
                     <tr>
                         <td><i class="bi bi-person-circle me-2 text-muted"></i>{{ user.name }}</td>
-                        <td>{{ user.email }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email or '-' }}</td>
                         <td>
                             <span class="badge {% if user.profile == 'Admin' %}bg-primary{% else %}bg-secondary{% endif %}">
                                 {{ user.profile }}
@@ -87,8 +89,12 @@
                         <input type="text" name="name" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control" required>
+                        <label class="form-label">Username</label>
+                        <input type="text" name="username" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email <small class="text-muted">(Opcional)</small></label>
+                        <input type="email" name="email" class="form-control">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Senha</label>
@@ -128,8 +134,12 @@
                         <input type="text" name="name" class="form-control" value="{{ user.name }}" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
+                        <label class="form-label">Username</label>
+                        <input type="text" name="username" class="form-control" value="{{ user.username }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email <small class="text-muted">(Opcional)</small></label>
+                        <input type="email" name="email" class="form-control" value="{{ user.email or '' }}">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Nova Senha (deixe em branco para manter)</label>
