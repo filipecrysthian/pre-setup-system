@@ -127,6 +127,7 @@ class PreSetup(db.Model):
     pdf_filename = db.Column(db.String(300), nullable=True)
     email_sent = db.Column(db.Boolean, default=False)
     email_sent_at = db.Column(db.DateTime, nullable=True)
+    general_observations = db.Column(db.Text, nullable=True)
 
     # Relacionamento com itens preenchidos
     setup_items = db.relationship('PreSetupItem', backref='pre_setup', lazy='dynamic',

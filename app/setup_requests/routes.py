@@ -108,7 +108,8 @@ def generate_submit(model_id):
         user_id=current_user.id,
         num_bays=int(request.form.get('num_bays', 1)),
         linha=request.form.get('linha', 'LM04'),
-        overall_status=overall_status
+        overall_status=overall_status,
+        general_observations=request.form.get('general_observations', '').strip()
     )
     db.session.add(pre_setup)
     db.session.flush()  # Obter o ID antes do commit

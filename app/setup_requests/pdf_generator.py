@@ -197,6 +197,12 @@ def generate_pre_setup_pdf(pre_setup, model, items_data, user, output_path):
     elements.append(items_table)
     elements.append(Spacer(1, 8 * mm))
 
+    # --- Observações Gerais ---
+    if pre_setup.general_observations:
+        elements.append(Paragraph('Observações Gerais', header_style))
+        elements.append(Paragraph(pre_setup.general_observations, cell_style))
+        elements.append(Spacer(1, 8 * mm))
+
     # --- Resumo ---
     elements.append(Paragraph('Resumo', header_style))
 

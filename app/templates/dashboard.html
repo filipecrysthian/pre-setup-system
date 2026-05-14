@@ -54,6 +54,63 @@
     </div>
 </div>
 
+<!-- Charts Row 1 -->
+<div class="row g-4 mb-4">
+    <!-- Timeline -->
+    <div class="col-md-8">
+        <div class="card card-custom h-100">
+            <div class="card-header card-header-custom">
+                <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Produtividade (Últimos 14 dias com atividade)</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="timelineChart" style="max-height: 250px;"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Ranking -->
+    <div class="col-md-4">
+        <div class="card card-custom h-100">
+            <div class="card-header card-header-custom">
+                <h5 class="mb-0"><i class="bi bi-trophy me-2"></i>Ranking de Produtividade</h5>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for user_name, total in user_ranking %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                        <div>
+                            {% if loop.index == 1 %}<span class="badge bg-warning me-2 text-dark"><i class="bi bi-star-fill"></i> 1º</span>
+                            {% elif loop.index == 2 %}<span class="badge bg-secondary me-2"><i class="bi bi-star-half"></i> 2º</span>
+                            {% elif loop.index == 3 %}<span class="badge" style="background-color: #cd7f32; color:white;"><i class="bi bi-star"></i> 3º</span>
+                            {% else %}<span class="badge bg-light text-dark me-2">{{ loop.index }}º</span>{% endif %}
+                            {{ user_name }}
+                        </div>
+                        <span class="badge bg-primary rounded-pill fs-6">{{ total }}</span>
+                    </li>
+                    {% else %}
+                    <li class="list-group-item text-center text-muted p-4">Nenhum dado disponível</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row 2 -->
+<div class="row g-4 mb-4">
+    <!-- Bar Chart Linhas -->
+    <div class="col-md-12">
+        <div class="card card-custom">
+            <div class="card-header card-header-custom">
+                <h5 class="mb-0"><i class="bi bi-bar-chart-fill me-2"></i>Volumetria por Linha de Produção</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="linhaChart" style="max-height: 200px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Recent Setups -->
 <div class="card card-custom">
     <div class="card-header card-header-custom">
@@ -125,4 +182,63 @@
         {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Timeline Chart
+    const ctxTimeline = document.getElementById('timelineChart').getContext('2d');
+    new Chart(ctxTimeline, {
+        type: 'line',
+        data: {
+            labels: {{ date_labels | tojson }},
+            datasets: [{
+                label: 'Pré Setups Gerados',
+                data: {{ date_data | tojson }},
+                borderColor: '#1565c0',
+                backgroundColor: 'rgba(21, 101, 192, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.3,
+                pointBackgroundColor: '#1565c0'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+
+    // Linhas Chart
+    const ctxLinha = document.getElementById('linhaChart').getContext('2d');
+    new Chart(ctxLinha, {
+        type: 'bar',
+        data: {
+            labels: {{ linha_labels | tojson }},
+            datasets: [{
+                label: 'Total de Pré Setups',
+                data: {{ linha_data | tojson }},
+                backgroundColor: '#2e7d32',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+</script>
 {% endblock %}
