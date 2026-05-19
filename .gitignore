@@ -164,4 +164,8 @@ generated_pdfs/*
 *.pdf
 update_db.py
 update_db_v2.py
+update_db_v3.py
+update_db_v4.py
+update_db_v5.py
+
 cadastro_modelos.sql
