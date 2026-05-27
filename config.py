@@ -2,8 +2,12 @@
 Configurações do sistema PRÉ SETUP.
 """
 import os
+from dotenv import load_dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+
+# Carrega variáveis de ambiente do arquivo .env se existir
+load_dotenv(os.path.join(basedir, '.env'))
 
 
 class Config:

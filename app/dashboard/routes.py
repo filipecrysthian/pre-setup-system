@@ -35,11 +35,16 @@ def index():
     date_data = []
     for row in date_query:
         if row[0]:
-            try:
-                dt = datetime.strptime(row[0], '%Y-%m-%d')
-                date_labels.append(dt.strftime('%d/%m'))
-            except ValueError:
-                date_labels.append(row[0])
+            if isinstance(row[0], str):
+                try:
+                    dt = datetime.strptime(row[0], '%Y-%m-%d')
+                    date_labels.append(dt.strftime('%d/%m'))
+                except ValueError:
+                    date_labels.append(row[0])
+            elif hasattr(row[0], 'strftime'):
+                date_labels.append(row[0].strftime('%d/%m'))
+            else:
+                date_labels.append(str(row[0]))
             date_data.append(row[1])
 
     # 5. Ranking de Produtividade dos Usuários
